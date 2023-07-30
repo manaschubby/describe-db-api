@@ -1,5 +1,5 @@
 import mysql.connector
-from flask import request, jsonify
+from flask import jsonify
 
 def get_mysql_schema(data):
     if(validate_mysql_req(data)==False):
@@ -15,13 +15,28 @@ def get_mysql_schema(data):
         mysql_cursor = mysql_conn.cursor()
         mysql_cursor.execute("SHOW TABLES")
         tables = mysql_cursor.fetchall()
+        json_tables = []
         for table in tables:
             mysql_cursor.execute("DESCRIBE " + table[0])
             columns = mysql_cursor.fetchall()
-            print(columns)
+            json_columns = []
+            for column in columns:
+                json_columns.append({
+                    'Field': column[0],
+                    'Type': column[1],
+                    'Null': column[2],
+                    'Key': column[3],
+                    'Default': column[4],
+                    'Extra': column[5]
+                })
+            json_tables.append({
+                'Table': table[0],
+                'Columns': json_columns
+            })
+        print(json_tables)
         mysql_cursor.close()
         mysql_conn.close()
-        return jsonify({'success': 'true'})
+        return jsonify({'success': 'true', 'data': json_tables})
     except Exception as e:
         print(e)
         return jsonify({'error': 'Invalid Request'})
