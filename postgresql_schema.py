@@ -35,7 +35,7 @@ def get_psql_schema(data):
                 json_columns.append(
                     {
                         "Field": column[0],
-                        "Type": column[1],
+                        "Type": column[1].decode("utf-8"),
                         "Null": column[2],
                         "Default": column[3],
                     }
@@ -52,7 +52,7 @@ def get_psql_schema(data):
 
 
 def validate_psql_req(data):
-    if data["port"] == "":
+    if not (data.__contains__("port")):
         data["port"] = 5432
     # Rest of the validation is same as mysql
     return validate_mysql_req(data)
